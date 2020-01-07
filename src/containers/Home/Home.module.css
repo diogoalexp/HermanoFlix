@@ -4,3 +4,35 @@ video::cue {
     /* font-size: 20px !important; */
     background-color: transparent;
   }
+
+.video {
+    outline: 0 !important;
+}
+
+.playerWrapper {
+  position: relative;
+  padding-top: 56.25% /* Player ratio: 100 / (1280 / 720) */
+}
+ 
+.reactPlayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  outline: 0 !important;
+}
+.movieList{
+  /* background-color: red; */
+  margin-left: 4.5%;
+  outline: 0 !important;
+}
+
+.video-container{
+  background-color: #191919;
+  width: 100%;
+  height: 1000px;
+  outline :none;
+}
+
+.video-container:focus{
+  outline :none;
+}

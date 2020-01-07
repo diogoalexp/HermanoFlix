@@ -1,6 +1,6 @@
 import React from 'react';
 
-import pcLogo from '../../assets/images/pc_icon.png';
+import pcLogo from '../../assets/images/h2.png';
 import classes from './Logo.module.css';
 
 const logo = (props) => (

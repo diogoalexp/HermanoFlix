@@ -1,0 +1,106 @@
+ .Card {
+    /* position: relative; */
+    background: #fcf4eb;
+    width: 224px;
+    height: 336px;
+    color: black;    
+    float: left;
+    overflow: hidden;
+    /* padding: 10px; */
+    margin: 10px 10px;
+    border-top: 5px;
+    border-left: 5px;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 3px #ccc;
+    position: relative;
+    text-align: left;
+  }
+
+.Card:hover {
+    box-shadow: 1px 1px 2px 3px lightblue;
+    border: 0px;
+    
+}
+
+.Card:hover  > .Nome {
+    visibility: visible;
+}
+
+.Owner {
+    border: 1px solid lightsalmon;
+}
+  
+.Imagem {
+    /* padding: 8px; */
+    height: 100%;
+    box-sizing: border-box;
+    border-radius: 5px;
+}
+
+.Imagem img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    height: 100%;
+    border-top: 5px;
+    border-left: 5px;
+    border-radius: 6px;
+}
+.Nome {
+    visibility: hidden;
+    color: #160a03;
+    position: absolute;
+    top: 8px;
+    left: 16px;
+}
+
+.Descr {
+    height: 30%;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-weight: normal;
+    font-style: italic;
+    font-size: 0.7rem;
+    text-indent: 25px;
+    color: #2c1407
+}
+
+.Footer {
+    vertical-align: text-bottom;
+    text-align: right;
+    height: 10%;
+    color: #421e0a;
+}
+
+.Edit {
+    float: right;
+    position: relative;
+    background-color: #703B09;
+
+}
+
+.Edit img {    
+	position: absolute;
+	width:32px;
+	height:32px;
+	/* bottom:0px;
+    left: 10px; */
+    right: 0px;
+	/* background-color:#0C9; */
+	/* color:#FFF; */
+	border-radius:50px;
+	text-align:center;
+    box-shadow: 2px 2px 3px #999;
+    background-color: #703B09;
+}
+
+@media (max-width: 500px) {
+    .Card {
+        margin: 10px 10px 10px 10px;
+        width: 95%;
+        height: 100%;
+    }
+    
+}

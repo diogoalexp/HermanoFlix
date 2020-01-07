@@ -9,6 +9,9 @@ import ReactPlayer from 'react-player'
 import classes from './Home.module.css';
 
 import Button from '../../components/UI/Button/Button';
+import Card from '../../components/Card/Card/Card';
+import Modal from '../../components/UI/Modal/Modal';
+
 
 import axios from '../../axios-local';
 
@@ -21,36 +24,24 @@ class Home extends Component {
                 movies: "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
                 folder: 'teste2'
             }          
-        ]
-    }
+        ],
+        modal: false
 
-    changeHandler1 = () => {
-        alert("change1");
-        // this.setState( {item: { folder: 'teste1', movies: "http://localhost:8080/movies/teste1/movie.mp4"}} );
-        this.setState( {item: { folder: 'teste1'}} );
-        setTimeout(() => {
-            console.log('Hello, World!');
-            this.setState( {item: { movies: "http://localhost:8080/movies/teste1/movie.mp4"}} );
-          }, 3000);
-    }
-
-    changeHandler2 = () => {
-        alert("change2");
-        this.setState( {item: {  folder: 'teste2' }} );
-        setTimeout(() => {
-            console.log('Hello, World!');
-            this.setState( {item: { movies: "./movies/teste2/movie.mp4"}} );
-          }, 3000);
     }
 
     changeHandler = (f) => {
-        alert("changed..");
+        // alert("changed..");
         // this.setState( {item: { folder: 'teste1', movies: "http://localhost:8080/movies/teste1/movie.mp4"}} );
-        this.setState( {item: { folder: f}} );
+        this.setState( {item: { folder: f}, modal: true} );
         setTimeout(() => {
             console.log('Hello, World!');
             this.setState( {item: { movies: "./movies/" + f + "/movie.mp4"}} );
           }, 3000);
+    }
+
+    modalClosed = () => {
+        // alert("modalClosed..");
+        this.setState( {modal: false} );
     }
 
     componentDidMount() {
@@ -64,39 +55,51 @@ class Home extends Component {
         
         let db = catalog;
         console.log({catalog});
+        const divStyle = {
+            display: 'table',
+            margin: '0 auto',
+            border: '1px solid black'            
+          };
+
         return (
-            <div className='player-wrapper'>
-              
-            <p>{date}</p>
-            <p>{movies}</p>
-            <p>{folder}</p>
-            <ReactPlayer
-              playing
-              className='react-player'
-              controls              
-              width='25%'
-              height='25%'
-              config={{ file: {
-                    tracks: [
-                        {kind: 'subtitles', src: 'http://localhost:8080/movies/' + folder + '/portugues.vtt', srcLang: 'pt-br', default: true },
-                        {kind: 'subtitles', src: 'http://localhost:8080/movies/' + folder + '/english.vtt', srcLang: 'en'},
-                        {kind: 'subtitles', src: 'http://localhost:8080/movies/' + folder + '/espanol.vtt', srcLang: 'es'},
-                        {kind: 'subtitles', src: 'http://localhost:8080/movies/' + folder + '/francais.vtt', srcLang: 'fr'},
-                        {kind: 'subtitles', src: 'http://localhost:8080/movies/' + folder + '/fp.vtt', srcLang: 'fp'}
-                    ],
-                    attributes: {
-                        controlsList: 'nodownload'
-                    }
-                }}}
-              url = {movies}
-            />
-            {db.catalog.map(filme => (
-                // <p>{filme.folder}</p>
-                <Button btnType="Success" type="button" clicked={() => this.changeHandler(filme.folder)} >{filme.folder}</Button>
-            ))}  
-            {/* <Button btnType="Success" type="button" clicked={() => this.changeHandler1()} >Test 1</Button>
-            <Button btnType="Success" type="button" clicked={() => this.changeHandler2()} >Test 2</Button> */}
-          </div>
+            <div className={classes.movieList}>
+                {db.catalog.map(filme => (                
+                    <Card 
+                        key={filme.tmdb}
+                        img={"./movies/" + filme.folder + "/poster.jpg"}
+                        nome={filme.folder} 
+                        descr={filme.folder}
+                        footer={null}
+                        clicked={() => this.changeHandler(filme.folder)}
+                        owner={filme.folder}
+                    />
+                ))}     
+                <Modal show={this.state.modal} modalClosed={() => this.modalClosed()}>
+                    <div className={classes.playerWrapper}>
+                        <ReactPlayer              
+                        playing
+                        className={classes.reactPlayer}
+                        controls              
+                          width='100%'
+                          height='100%'                        
+                        style={divStyle}
+                        config={{ file: {
+                                tracks: [
+                                    {kind: 'subtitles', src: 'http://localhost:8080/movies/' + folder + '/portugues.vtt', srcLang: 'pt-br', default: true },
+                                    {kind: 'subtitles', src: 'http://localhost:8080/movies/' + folder + '/english.vtt', srcLang: 'en'},
+                                    {kind: 'subtitles', src: 'http://localhost:8080/movies/' + folder + '/espanol.vtt', srcLang: 'es'},
+                                    {kind: 'subtitles', src: 'http://localhost:8080/movies/' + folder + '/francais.vtt', srcLang: 'fr'},
+                                    {kind: 'subtitles', src: 'http://localhost:8080/movies/' + folder + '/fp.vtt', srcLang: 'fp'}
+                                ],
+                                attributes: {
+                                    controlsList: 'nodownload'
+                                }
+                            }}}
+                        url = {movies}
+                        />          
+                    </div>      
+                </Modal>         
+            </div>
         );
     }
 }
