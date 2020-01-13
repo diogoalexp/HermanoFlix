@@ -5,23 +5,11 @@ import asyncComponent from './hoc/asyncComponent/asyncComponent';
 
 import Layout from './hoc/Layout/Layout';
 import Home from './containers/Home/Home';
-import Formation from './containers/Formation/Formation';
-import Career from './containers/Career/Career';
-import Experience from './containers/Experience/Experience';
-import Library from './containers/Library/Library';
-// import Logout from './containers/Auth/Logout/Logout';
-// import * as actions from './store/actions/index';
 
-// const asyncCheckout = asyncComponent(() => {
-//   return import('./containers/Checkout/Checkout');
-// });
 
-// const asyncOrders = asyncComponent(() => {
-//   return import('./containers/Orders/Orders');
-// });
 
 const asyncAuth = asyncComponent(() => {
-  return import('./containers/Auth/Auth');
+  // return import('./containers/Auth/Auth');
 });
 
 class App extends Component {
@@ -32,12 +20,7 @@ class App extends Component {
   render () {
     let routes = (
       <Switch>
-        <Route path="/auth" component={asyncAuth} />
         <Route path="/" exact component={Home} />
-        <Route path="/formation" exact component={Formation} />        
-        <Route path="/career" exact component={Career} />
-        <Route path="/experience" exact component={Experience} />
-        <Route path="/library" exact component={Library} />
         <Redirect to="/" />
       </Switch>
     );

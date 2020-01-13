@@ -16,7 +16,10 @@ const card = ( props ) => {
                     <img src={img} alt="Sem Foto" />
                 </div>
                 <div className={classes.Nome}>
-                   <b>{props.nome}</b>
+                   <b>{props.nome.substring(7, props.nome.length)}</b>
+                </div>
+                <div className={classes.Ano}>
+                   <b>{props.nome.substring(0, 7)}</b>
                 </div>
             </div>
     );

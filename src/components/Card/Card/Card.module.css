@@ -28,6 +28,10 @@
     visibility: visible;
 }
 
+.Card:hover  > .Ano {
+    visibility: visible;
+}
+
 .Owner {
     border: 1px solid lightsalmon;
 }
@@ -49,12 +53,27 @@
     border-left: 5px;
     border-radius: 6px;
 }
+
 .Nome {
     visibility: hidden;
     color: #160a03;
     position: absolute;
-    top: 8px;
-    left: 16px;
+    bottom: 5px;
+    left: 15px;
+    background-color: rgb(161, 2, 2);
+    border-radius: 6px;
+    width: 87%;
+}
+
+.Ano {
+    visibility: hidden;
+    color: #160a03;
+    position: absolute;
+    top: 5px;
+    right: 15px;
+    background-color: rgb(161, 2, 2);
+    border-radius: 6px;
+    /* width: 87%; */
 }
 
 .Descr {
