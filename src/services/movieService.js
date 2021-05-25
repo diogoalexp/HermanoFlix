@@ -11,7 +11,6 @@ export const getTmdb = async (tmdb) => {
             return data;
         })
         .catch(err => {
-            console.log('tmdb-err', err)
             return null;
         });
 
@@ -45,8 +44,8 @@ export const getTracks = async (folder) => {
     let tracks = []
     for (const key in subtitles) {
         let sub = subtitles[key];
-        if (sub){
-            const blob = new Blob(["\ufeff", sub.join('\n')], { encoding: "UTF-8", type: "text/plain;charset=utf-8" })
+        if (sub && sub !== ""){
+            const blob = new Blob(["\ufeff", sub], { encoding: "ISO-8859-1", type: "text/plain;charset=ISO-8859-1" })
 
             let url = URL.createObjectURL(blob);
 
@@ -56,6 +55,4 @@ export const getTracks = async (folder) => {
 
     return tracks;
 }
-
-
 

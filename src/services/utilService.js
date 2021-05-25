@@ -1,33 +1,46 @@
 export const convertFile = async (fileObject) => {
-    let list = [];
-    list.push("WEBVTT");
-    list.push("");
-    list.push("0");
-    list.push("00:00:01.000 --> 00:00:05.000");
-    list.push("Hermano Flix orgulhosamente apresenta...");
-    list.push("");
+    let list = `WEBVTT
 
-    list = await fetch(fileObject)
-        .then((r) => r.text())
-        .then(text => {
-            console.log();
-            let regex = /([0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9])+/g;
+0
+00:00:01.000 --> 00:00:05.000
+Hermano Flix orgulhosamente apresenta...
 
-            if (regex.test(text)) {
-                text = text.replace(regex, function (x) {
-                    return x.replace(',', '.');
-                });
-            } else {
-                return null;
-            }
+`;
+    let result = new Promise((resolve, reject) => {
+        const request = new XMLHttpRequest();
 
-            list.push(text);
-            return list;
-        })
-        .catch(err => {
-            return null;
+        try {
+            request.overrideMimeType('text/xml; charset=iso-8859-1');
+
+            request.onload = () => {
+                if (request.status === 200) {
+                    resolve(Buffer.from(request.response), 'utf-8');
+                } else {
+                    resolve(Buffer.from(""), 'utf-8');
+                }
+            };
+
+            request.open('GET', fileObject);
+            request.setRequestHeader('Content-type', 'text/xml; charset=utf-8');
+            request.send();
+        } catch (err) {
+            return null
+        }
+
+    });
+    let sub = await result;
+    let srt = new TextDecoder().decode(sub);
+
+    let regex = /([0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9])+/g;
+
+    if (regex.test(srt)) {
+        srt = srt.replace(regex, function (x) {
+            return x.replace(',', '.');
         });
-
+    } else {
+        return null;
+    }
+    list = list + srt;
 
     return list;
 }

@@ -7,9 +7,6 @@ import Modal from '../../components/UI/Modal/Modal';
 import Player from '../../components/Player/Player';
 import Search from '../../components/Search/Search';
 
-import Toolbar from '../../components/Navigation/Toolbar/Toolbar';
-
-
 import config from '../../config';
 import source from '../../Source/catalog';
 
@@ -90,7 +87,8 @@ const Home = (props) => {
     }
 
     let movieList = []
-    if (form.ordem.value === "0") {
+    console.log('form.ordem.value', form.ordem.value);
+    if (form.ordem.value === "0" || form.ordem.value === 0) {
         movieList = catalog.sort((a, b) => utilService.sortByNum(a, b, form.ascending));
     }
     else {
