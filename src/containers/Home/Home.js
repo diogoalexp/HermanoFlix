@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React, { useEffect, useState } from 'react';
 
 import ReactPlayer from 'react-player'
 
@@ -13,31 +12,20 @@ import search from '../../assets/images/search-icon.png';
 import asc from '../../assets/images/asc.png';
 import desc from '../../assets/images/desc.png';
 
-import axios from '../../axios-local';
 
-import catalog from '../../Source/catalog';
+import config from '../../config';
 
-class Home extends Component {
-    state = {
-        item: [
-            {   
-                movies: "",//"http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
-                folder: ''//'teste2'
-            }          
-        ],
-        modal: false,
-        loading: false,
-        ascending: true,
-        catalog: [],
-        tmdb: {
-            overview: "",
-            vote_average: 0,
-            genres: [],
-            release_date: null,
-            original_title: "",
-            title: ""
-        },
-        Field: {
+import source from '../../Source/catalog';
+
+import * as movieService from '../../services/movieService';
+import * as utilService from '../../services/utilService';
+
+const Home = (props) => {
+    const [catalog, setCatalog] = useState([]);
+    const [movie, setMovie] = useState(null);
+    let counter = { value: 0 };
+    const [form, setForm] = useState(
+        {
             pesquisa: {
                 elementType: 'input',
                 elementConfig: {
@@ -56,9 +44,9 @@ class Home extends Component {
                 elementLabel: 'Ordem',
                 elementConfig: {
                     options: [
-                        {value: 0, displayValue: 'Novidades'},
-                        {value: 1, displayValue: 'Ano'},
-                        {value: 2, displayValue: 'Título'}
+                        { value: 0, displayValue: 'Novidades' },
+                        { value: 1, displayValue: 'Ano' },
+                        { value: 2, displayValue: 'Título' }
                     ]
                 },
                 value: 0,
@@ -66,245 +54,165 @@ class Home extends Component {
                     required: false
                 },
                 valid: true
-            }
+            },
+            ascending: true
+
         }
-    }
+    );
 
-    changeHandler = (f, key) => {
-        this.setState( {item: { folder: f}, modal: true} );
-        this.getTmdb(key);
-        setTimeout(() => {
-            this.setState( {item: { movies: "./movies/" + f + "/movie.mp4"}} );
-          }, 3000);
-    }
-
-    modalClosed = () => {
-        this.setState( {modal: false} );
-    }
-
-    componentDidMount() {
+    useEffect(() => {
         let id = 0;
-        let list = catalog.catalog.map(filme => (      
-            {...filme, id: id++}
-        ))  
+        let list = source.catalog?.map(filme => (
+            { ...filme, id: id++ }
+        ))
+        setCatalog(list);
+    }, [])
 
-        this.setState( {catalog: list} );
+
+    const changeHandler = async (folder, key) => {
+        const subtitles = await movieService.getSubtitles(folder);
+        const tmdb = await movieService.getTmdb(key);
+        const video = await movieService.getVideo(folder);
+
+        setMovie({ subtitles, tmdb, video })
     }
 
-    checkVisibility = (filme, counter) => {
-        if (this.state.Field.pesquisa.value == "" || filme.folder.toUpperCase().includes(this.state.Field.pesquisa.value.toUpperCase())){
-            counter.value = counter.value + 1;
-            return true;
-        }
-        return false;
+    const formHandler = (event, field) => {
+        let prevForm = { ...form };
+
+        if (field == "pesquisa")
+            prevForm.pesquisa.value = event.target.value;
+        if (field == "ordem")
+            prevForm.ordem.value = event.target.value;
+        if (field == "sort")
+            prevForm.ascending = !prevForm.ascending;
+
+        setForm(prevForm);
     }
 
-    inputChangedHandler = (event) => {
-        const field = {
-            ...this.state.Field
-        };
-        field.pesquisa.value = event.target.value;
-        this.setState({Field: field});
+    const modalClosed = () => {
+        setMovie(null);
     }
 
-    inputOrdemHandler = (event) => {
-        const field = {
-            ...this.state.Field
-        };
-        field.ordem.value = event.target.value;
-        this.setState({Field: field});
+
+
+    let pesquisa = <div>
+        <Input
+            value={form.pesquisa.value}
+            elementType={form.pesquisa.elementType}
+            elementConfig={form.pesquisa.elementConfig}
+            changed={(event) => formHandler(event, "pesquisa")}
+        ></Input>
+        <div className={classes.Search}>
+            <img src={search} alt="Sem Foto" />
+        </div>
+    </div>
+
+    let ordenar = <div>
+        <Input
+            value={form.ordem.value}
+            elementType={form.ordem.elementType}
+            elementConfig={form.ordem.elementConfig}
+            changed={(event) => formHandler(event, "ordem")}
+        ></Input>
+    </div>
+
+    let ordering = <div className={classes.Sort}>
+        <Button btnType="Success" clicked={() => formHandler(null, "sort")}><img className={classes.Sort} alt="Sem Foto" src={form.ascending ? asc : desc} /></Button>
+    </div>
+
+
+
+    let movieList = []
+    if (form.ordem.value == 0) {
+        movieList = catalog.sort((a, b) => utilService.sortByNum(a, b, form.ascending));
+    }
+    else {
+        movieList = catalog.sort((a, b) => utilService.sortByText(a, b, form.ordem.value, form.ascending));
     }
 
-    orderingHandler = () => {
-        this.setState({ascending: !this.state.ascending});
-    }
-
-    getTmdb = (tmdb) => {
-        axios.get(tmdb +'?api_key=fab315859353736a9ceb15038771d35e&language=pt-BR')
-            .then(res => {
-                var data = res.data;
-                let tmdb = {
-                    overview: data.overview,
-                    vote_average: data.vote_average,
-                    genres: data.genres,
-                    release_date: data.release_date,
-                    original_title: data.original_title,
-                    title: data.title
-                };
-
-                this.setState({loading: false, tmdb: tmdb});
-            })
-            .catch(err => {
-                this.setState({loading: false});
-            });        
-
-    }
-
-    
-    sortByText = (a, b, ordem) => {
-        let first = a.folder;
-        let second = b.folder;
-
-        if (ordem == 2){
-            first = first.substring(7, first.length);
-            second = second.substring(7, second.length);
-        }
-
-        const diff = first.toLowerCase().localeCompare(second.toLowerCase());
-
-        if (this.state.ascending) {
-            return diff;
-        }
-    
-        return -1 * diff;
-    }
-
-    sortByNum = (a, b, ordem) => {
-        let diff = 0;
-        if (a.id < b.id)
-            diff = -1;
-        else if(a.id > b.id) 
-            diff =  1
-
-        if (this.state.ascending) {
-            return diff;
-        }
-    
-        return -1 * diff;
-    }
-    
-
-    render () {
-        let folder = this.state.item.folder;
-        let movies = this.state.item.movies;
-
-        const divStyle = {
-            display: 'table',
-            margin: '0 auto',
-            border: '1px solid black'            
-          };
-
-        let pesquisa = <div>
-                <Input     
-                    value={this.state.Field.pesquisa.value}
-                    elementType={this.state.Field.pesquisa.elementType}
-                    elementConfig={this.state.Field.pesquisa.elementConfig}
-                    changed={(event) => this.inputChangedHandler(event)} 
-                ></Input>
-                <div className={classes.Search}>
-                        <img src={search} alt="Sem Foto" />
-                </div>
-            </div>
-
-        let ordenar = <div>
-                <Input     
-                    value={this.state.Field.ordem.value}
-                    elementType={this.state.Field.ordem.elementType}
-                    elementConfig={this.state.Field.ordem.elementConfig}
-                    changed={(event) => this.inputOrdemHandler(event)} 
-                ></Input>
-            </div>  
-        
-        let ordering = 
-            <div className={classes.Sort}>
-                <Button  btnType="Success" clicked={() => this.orderingHandler()}><img className={classes.Sort} alt="Sem Foto" src={this.state.ascending ? asc : desc}/></Button> 
-            </div>           
-
-        if(this.state.Field.ordem.value == 0)
-            this.state.catalog.sort((a, b) => this.sortByNum(a, b, this.state.Field.ordem.value));
-        else
-        this.state.catalog.sort((a, b) => this.sortByText(a, b, this.state.Field.ordem.value));
-        
-        let counter = {value:0};
-        let movieList = this.state.catalog.map(filme => (      
-            this.checkVisibility(filme, counter) ?          
-            <Card 
+    movieList = movieList.map(filme => (
+        utilService.checkVisibility(filme, form) ?
+            <Card
                 key={filme.id}
-                img={"./movies/" + filme.folder + "/poster.jpg"}
-                nome={filme.folder} 
+                img={config.test ? config.obj.poster : config.baseUrl + "movie/" + filme.folder + "/poster.jpg"}
+                nome={filme.folder}
                 descr={filme.folder}
                 footer={null}
-                clicked={() => this.changeHandler(filme.folder, filme.tmdb)}
+                clicked={() => changeHandler(filme.folder, filme.tmdb)}
                 owner={filme.folder}
             /> : null
-        ))  
-        let realeaseDate = new Date(this.state.tmdb.release_date); 
+    ))
 
-        return (
-            <div className={classes.movieList}>
+    return (
+        <div className={classes.movieList}>
+            <div className={classes.FilterBlock}>
+                <div className={classes.FilterProcurar}>{pesquisa}</div>
+                <div className={classes.FilterProcurar}>{ordenar}</div>
+                <div className={classes.FilterProcurar}>{ordering}</div>
+                <p className={classes.Counter}>{movieList.filter(x => x != null).length} of {catalog.length} Results</p>
+            </div>
+            {movieList}
+            <Modal show={!!movie} modalClosed={() => modalClosed()}>
                 <div className={classes.FilterBlock}>
-                    <div className={classes.FilterProcurar}>{pesquisa}</div>
-                    <div className={classes.FilterProcurar}>{ordenar}</div>
-                    <div className={classes.FilterProcurar}>{ordering}</div>
-                    <p className={classes.Counter}>{counter.value} of {this.state.catalog.length} Results</p>
+                    <span className={classes.modalTitle}>Título: {movie?.tmdb?.title}</span>
+                    {movie?.tmdb?.title != movie?.tmdb?.original_title ? <span className={classes.modalTitleOriginal}>Título Original: {movie?.tmdb?.original_title}</span> : null}
                 </div>
-                {movieList}
-                <Modal show={this.state.modal} modalClosed={() => this.modalClosed()}>
-                    <div className={classes.FilterBlock}>
-                        <span className={classes.modalTitle}>Título: {this.state.tmdb.title}</span>                        
-                        {this.state.tmdb.title != this.state.tmdb.original_title ? <span className={classes.modalTitleOriginal}>Título Original: {this.state.tmdb.original_title}</span> : null}
+                <br />
+                <div className={classes.playerWrapper}>
+                    {movie
+                        ?
+                        <ReactPlayer
+                            // playing
+                            className={classes.reactPlayer}
+                            controls
+                            width='680px'
+                            height='360px'
+                            style={divStyle}
+                            config={{
+                                file: {
+                                    tracks: [
+                                        { kind: 'subtitles', src: movieService.getSubtitleURL(movie,"pt"), srcLang: 'pt-br', default: true },
+                                        { kind: 'subtitles', src: movieService.getSubtitleURL(movie,"en"), srcLang: 'en' },
+                                        { kind: 'subtitles', src: movieService.getSubtitleURL(movie,"es"), srcLang: 'es' },
+                                        { kind: 'subtitles', src: movieService.getSubtitleURL(movie,"fr"), srcLang: 'fr' },
+                                        { kind: 'subtitles', src: movieService.getSubtitleURL(movie,"fp"), srcLang: 'fp' }
+                                    ],
+                                    attributes: {
+                                        controlsList: 'nodownload'
+                                    }
+                                }
+                            }}
+                            url={movie?.video}
+                        />
+                        : null
+                    }
+                </div>
+                <div>
+                    <span className={classes.modalNote}>Nota: {movie?.tmdb?.vote_average}</span>
+                    <span className={classes.modalRelease}>Lançamento: {(new Date(movie?.tmdb?.release_date)).toLocaleDateString()}</span>
+                    <br /><br />
+                    {
+                        movie?.tmdb?.genres?.map((gen, i) => (
+                            (movie?.tmdb?.genres.length === i + 1) ? <span key={gen.id} className={classes.modalGenre}>{gen.name}</span>
+                                : <span key={gen.id} className={classes.modalGenre}>{gen.name}&nbsp;&nbsp;&nbsp;&nbsp;/</span>
+                        ))
+                    }
+                    <br /><br />
+                    <div className={classes.modalDivText}>
+                        <p className={classes.modalText}>{movie?.tmdb?.overview}</p>
                     </div>
                     <br />
-                    <div className={classes.playerWrapper}>
-                        <ReactPlayer              
-                        // playing
-                        className={classes.reactPlayer}
-                        controls              
-                          width='680px'
-                          height='360px'                        
-                        style={divStyle}
-                        config={{ file: {
-                                tracks: [
-                                    {kind: 'subtitles', src: 'http://localhost:8080/movies/' + folder + '/portugues.vtt', srcLang: 'pt-br', default: true },
-                                    {kind: 'subtitles', src: 'http://localhost:8080/movies/' + folder + '/english.vtt', srcLang: 'en'},
-                                    {kind: 'subtitles', src: 'http://localhost:8080/movies/' + folder + '/espanol.vtt', srcLang: 'es'},
-                                    {kind: 'subtitles', src: 'http://localhost:8080/movies/' + folder + '/francais.vtt', srcLang: 'fr'},
-                                    {kind: 'subtitles', src: 'http://localhost:8080/movies/' + folder + '/fp.vtt', srcLang: 'fp'}
-                                ],
-                                attributes: {
-                                    controlsList: 'nodownload'
-                                }
-                            }}}
-                        url = {movies}
-                        />          
-                    </div> 
-                    <div>                        
-                        <span className={classes.modalNote}>Nota: {this.state.tmdb.vote_average}</span>                        
-                        <span className={classes.modalRelease}>Lançamento: {realeaseDate.toLocaleDateString()}</span>
-                        <br /><br />                                   
-                            {
-                                this.state.tmdb.genres.map((gen, i) => (      
-                                    (this.state.tmdb.genres.length === i + 1) ? <span key={gen.id} className={classes.modalGenre}>{gen.name}</span>
-                                        : <span key={gen.id} className={classes.modalGenre}>{gen.name}&nbsp;&nbsp;&nbsp;&nbsp;/</span>
-                                ))
-                            }                        
-                        <br /><br />   
-                        <div className={classes.modalDivText}>
-                            <p className={classes.modalText}>{this.state.tmdb.overview}</p>
-                        </div>   
-                        <br />
-                    </div>  
-                </Modal>         
-            </div>
-        );
-    }
+                </div>
+            </Modal>
+        </div>
+    );
 }
 
-const mapStateToProps = state => {
-    return {
-        // loading: state.auth.loading,
-        // error: state.auth.error,
-        // isAuthenticated: state.auth.token !== null,
-        // buildingBurger: state.burgerBuilder.building,
-        // authRedirectPath: state.auth.authRedirectPath
-    };
+const divStyle = {
+    display: 'table',
+    margin: '0 auto',
+    border: '1px solid black'
 };
 
-const mapDispatchToProps = dispatch => {
-    return {
-        // onAuth: ( email, password, isSignup ) => dispatch( actions.auth( email, password, isSignup ) ),
-        // onSetAuthRedirectPath: () => dispatch( actions.setAuthRedirectPath( '/' ) )
-    };
-};
-
-export default connect( mapStateToProps, mapDispatchToProps )( Home );
+export default Home;

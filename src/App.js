@@ -8,35 +8,16 @@ import Home from './containers/Home/Home';
 
 
 
-const asyncAuth = asyncComponent(() => {
-  // return import('./containers/Auth/Auth');
-});
 
-class App extends Component {
-  componentDidMount () {
-    // this.props.onTryAutoSignup();
-  }
 
-  render () {
+const App = (props) =>{
+
     let routes = (
       <Switch>
         <Route path="/" exact component={Home} />
         <Redirect to="/" />
       </Switch>
     );
-
-    // if ( this.props.isAuthenticated ) {
-    //   routes = (
-    //     <Switch>
-    //       <Route path="/checkout" component={asyncCheckout} />
-    //       <Route path="/orders" component={asyncOrders} />
-    //       <Route path="/logout" component={Logout} />
-    //       <Route path="/auth" component={asyncAuth} />
-    //       <Route path="/" exact component={BurgerBuilder} />
-    //       <Redirect to="/" />
-    //     </Switch>
-    //   );
-    // }
 
     return (
       <div>
@@ -45,19 +26,7 @@ class App extends Component {
         </Layout>
       </div>
     );
-  }
 }
 
-const mapStateToProps = state => {
-  return {
-    isAuthenticated: state.auth.token !== null
-  };
-};
 
-const mapDispatchToProps = dispatch => {
-  return {
-    // onTryAutoSignup: () => dispatch( actions.authCheckState() )
-  };
-};
-
-export default withRouter( connect( mapStateToProps, mapDispatchToProps )( App ) );
+export default App;
