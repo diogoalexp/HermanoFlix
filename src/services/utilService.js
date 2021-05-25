@@ -36,7 +36,7 @@ export const sortByText = (a, b, ordem, sort) => {
     let first = a.folder;
     let second = b.folder;
 
-    if (ordem == 2) {
+    if (ordem === "2") {
         first = first.substring(7, first.length);
         second = second.substring(7, second.length);
     }
@@ -65,7 +65,7 @@ export const sortByNum = (a, b, sort) => {
 }
 
 export const checkVisibility = (filme, form) => {
-    if (form.pesquisa.value == "" || filme.folder.toUpperCase().includes(form.pesquisa.value.toUpperCase()))
+    if (form.pesquisa.value === "" || filme.folder.toUpperCase().includes(form.pesquisa.value.toUpperCase()))
         return true;
     return false;
 }

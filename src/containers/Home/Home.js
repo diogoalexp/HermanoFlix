@@ -1,20 +1,16 @@
 import React, { useEffect, useState } from 'react';
 
-import ReactPlayer from 'react-player'
-
 import classes from './Home.module.css';
 
-import Button from '../../components/UI/Button/Button';
-import Card from '../../components/Card/Card/Card';
+import Card from '../../components/Card/Card';
 import Modal from '../../components/UI/Modal/Modal';
-import Input from '../../components/UI/Input/Input';
-import search from '../../assets/images/search-icon.png';
-import asc from '../../assets/images/asc.png';
-import desc from '../../assets/images/desc.png';
+import Player from '../../components/Player/Player';
+import Search from '../../components/Search/Search';
+
+import Toolbar from '../../components/Navigation/Toolbar/Toolbar';
 
 
 import config from '../../config';
-
 import source from '../../Source/catalog';
 
 import * as movieService from '../../services/movieService';
@@ -23,7 +19,6 @@ import * as utilService from '../../services/utilService';
 const Home = (props) => {
     const [catalog, setCatalog] = useState([]);
     const [movie, setMovie] = useState(null);
-    let counter = { value: 0 };
     const [form, setForm] = useState(
         {
             pesquisa: {
@@ -74,17 +69,17 @@ const Home = (props) => {
         const video = await movieService.getVideo(folder);
         const tracks = await movieService.getTracks(folder)
 
-        setMovie({ tmdb, video, tracks })
+        setMovie({ tmdb, video, tracks, folder, key })
     }
 
     const formHandler = (event, field) => {
         let prevForm = { ...form };
 
-        if (field == "pesquisa")
+        if (field === "pesquisa")
             prevForm.pesquisa.value = event.target.value;
-        if (field == "ordem")
+        if (field === "ordem")
             prevForm.ordem.value = event.target.value;
-        if (field == "sort")
+        if (field === "sort")
             prevForm.ascending = !prevForm.ascending;
 
         setForm(prevForm);
@@ -95,7 +90,7 @@ const Home = (props) => {
     }
 
     let movieList = []
-    if (form.ordem.value == 0) {
+    if (form.ordem.value === "0") {
         movieList = catalog.sort((a, b) => utilService.sortByNum(a, b, form.ascending));
     }
     else {
@@ -117,77 +112,14 @@ const Home = (props) => {
 
     return (
         <div className={classes.movieList}>
-            <div className={classes.FilterBlock}>
-                <div className={classes.FilterProcurar}>
-                    <Input value={form.pesquisa.value} elementType={form.pesquisa.elementType} elementConfig={form.pesquisa.elementConfig} changed={(event) => formHandler(event, "pesquisa")} />
-                    <div className={classes.Search}>
-                        <img src={search} alt="Sem Foto" />
-                    </div></div>
-                <div className={classes.FilterProcurar}>
-                    <Input value={form.ordem.value} elementType={form.ordem.elementType} elementConfig={form.ordem.elementConfig} changed={(event) => formHandler(event, "ordem")} />
-                </div>
-                <div className={classes.FilterProcurar}>
-                    <div className={classes.Sort}>
-                        <Button btnType="Success" clicked={() => formHandler(null, "sort")}><img className={classes.Sort} alt="Sem Foto" src={form.ascending ? asc : desc} /></Button>
-                    </div>
-                </div>
-                <p className={classes.Counter}>{movieList.filter(x => x != null).length} of {catalog.length} Results</p>
-            </div>
+            <Search form={form} formHandler={formHandler} movieList={movieList} catalog={catalog}/>
             {movieList}
             <Modal show={!!movie} modalClosed={() => modalClosed()}>
-                <div className={classes.FilterBlock}>
-                    <span className={classes.modalTitle}>Título: {movie?.tmdb?.title}</span>
-                    {movie?.tmdb?.title != movie?.tmdb?.original_title ? <span className={classes.modalTitleOriginal}>Título Original: {movie?.tmdb?.original_title}</span> : null}
-                </div>
-                <br />
-                <div className={classes.playerWrapper}>
-                    {movie
-                        ?
-                        <ReactPlayer
-                            // playing
-                            className={classes.reactPlayer}
-                            controls
-                            width='680px'
-                            height='360px'
-                            style={divStyle}
-                            config={{
-                                file: {
-                                    tracks: movie.tracks,
-                                    attributes: {
-                                        controlsList: 'nodownload'
-                                    }
-                                }
-                            }}
-                            url={movie?.video}
-                        />
-                        : null
-                    }
-                </div>
-                <div>
-                    <span className={classes.modalNote}>Nota: {movie?.tmdb?.vote_average}</span>
-                    <span className={classes.modalRelease}>Lançamento: {(new Date(movie?.tmdb?.release_date)).toLocaleDateString()}</span>
-                    <br /><br />
-                    {
-                        movie?.tmdb?.genres?.map((gen, i) => (
-                            (movie?.tmdb?.genres.length === i + 1) ? <span key={gen.id} className={classes.modalGenre}>{gen.name}</span>
-                                : <span key={gen.id} className={classes.modalGenre}>{gen.name}&nbsp;&nbsp;&nbsp;&nbsp;/</span>
-                        ))
-                    }
-                    <br /><br />
-                    <div className={classes.modalDivText}>
-                        <p className={classes.modalText}>{movie?.tmdb?.overview}</p>
-                    </div>
-                    <br />
-                </div>
+                <Player movie={movie}/>
             </Modal>
         </div>
     );
 }
 
-const divStyle = {
-    display: 'table',
-    margin: '0 auto',
-    border: '1px solid black'
-};
 
 export default Home;

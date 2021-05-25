@@ -50,7 +50,7 @@ export const getTracks = async (folder) => {
 
             let url = URL.createObjectURL(blob);
 
-            tracks.push({ kind: 'subtitles', src: url, srcLang: key == "pt" ? 'pt-br' : key, default: key == "pt" },)
+            tracks.push({ kind: 'subtitles', src: url, srcLang: key === "pt" ? 'pt-br' : key, default: key === "pt" },)
         }
     }
 
