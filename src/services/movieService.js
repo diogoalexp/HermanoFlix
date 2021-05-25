@@ -18,7 +18,14 @@ export const getTmdb = async (tmdb) => {
     return result;
 }
 
-export const getSubtitles = async (folder) => {
+export const getVideo = async (folder) => {
+    if (config.test)
+        return config.obj.movie;
+    else
+        return config.baseUrl + "movies/" + folder + "/movie.mp4";
+}
+
+const getSubtitles = async (folder) => {
     let pt = await utilService.convertFile(config.test ? config.obj.subtitles?.ptSrt : config.serverUrl + 'movies/' + folder + '/portugues.srt', "pt");
 
     let en = await utilService.convertFile(config.test ? config.obj.subtitles?.enSrt : config.serverUrl + 'movies/' + folder + '/english.srt', "en")
@@ -33,22 +40,21 @@ export const getSubtitles = async (folder) => {
 
 }
 
-export const getVideo = async (folder) => {
-    if (config.test)
-        return config.obj.movie;
-    else
-        return config.baseUrl + "movie/" + folder + "/movie.mp4";
-}
+export const getTracks = async (folder) => {
+    const subtitles = await getSubtitles(folder)
+    let tracks = []
+    for (const key in subtitles) {
+        let sub = subtitles[key];
+        if (sub){
+            const blob = new Blob(["\ufeff", sub.join('\n')], { encoding: "UTF-8", type: "text/plain;charset=utf-8" })
 
-export const getSubtitleURL = (movie, lang) => {
-    const sub = movie?.subtitles[lang]
+            let url = URL.createObjectURL(blob);
 
-    if (!sub) return;
+            tracks.push({ kind: 'subtitles', src: url, srcLang: key == "pt" ? 'pt-br' : key, default: key == "pt" },)
+        }
+    }
 
-    const blob = new Blob(["\ufeff", sub.join('\n')], { encoding: "UTF-8", type: 'text/plain;charset=utf-8' })
-
-    let url = window.URL.createObjectURL(blob);
-    return url;
+    return tracks;
 }
 
 

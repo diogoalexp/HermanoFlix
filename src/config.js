@@ -8,7 +8,7 @@ import testSubTitleEsSrt from "./movies/(2021) Test/espanol.srt";
 import testSubTitleFpSrt from "./movies/(2021) Test/fp.srt";
 
 const config = {
-    test: true,
+    test: false,
     baseUrl: "./",
     serverUrl: "http://localhost:8080/",
     obj:{

@@ -70,11 +70,11 @@ const Home = (props) => {
 
 
     const changeHandler = async (folder, key) => {
-        const subtitles = await movieService.getSubtitles(folder);
         const tmdb = await movieService.getTmdb(key);
         const video = await movieService.getVideo(folder);
+        const tracks = await movieService.getTracks(folder)
 
-        setMovie({ subtitles, tmdb, video })
+        setMovie({ tmdb, video, tracks })
     }
 
     const formHandler = (event, field) => {
@@ -94,35 +94,6 @@ const Home = (props) => {
         setMovie(null);
     }
 
-
-
-    let pesquisa = <div>
-        <Input
-            value={form.pesquisa.value}
-            elementType={form.pesquisa.elementType}
-            elementConfig={form.pesquisa.elementConfig}
-            changed={(event) => formHandler(event, "pesquisa")}
-        ></Input>
-        <div className={classes.Search}>
-            <img src={search} alt="Sem Foto" />
-        </div>
-    </div>
-
-    let ordenar = <div>
-        <Input
-            value={form.ordem.value}
-            elementType={form.ordem.elementType}
-            elementConfig={form.ordem.elementConfig}
-            changed={(event) => formHandler(event, "ordem")}
-        ></Input>
-    </div>
-
-    let ordering = <div className={classes.Sort}>
-        <Button btnType="Success" clicked={() => formHandler(null, "sort")}><img className={classes.Sort} alt="Sem Foto" src={form.ascending ? asc : desc} /></Button>
-    </div>
-
-
-
     let movieList = []
     if (form.ordem.value == 0) {
         movieList = catalog.sort((a, b) => utilService.sortByNum(a, b, form.ascending));
@@ -135,7 +106,7 @@ const Home = (props) => {
         utilService.checkVisibility(filme, form) ?
             <Card
                 key={filme.id}
-                img={config.test ? config.obj.poster : config.baseUrl + "movie/" + filme.folder + "/poster.jpg"}
+                img={config.test ? config.obj.poster : config.baseUrl + "movies/" + filme.folder + "/poster.jpg"}
                 nome={filme.folder}
                 descr={filme.folder}
                 footer={null}
@@ -147,9 +118,19 @@ const Home = (props) => {
     return (
         <div className={classes.movieList}>
             <div className={classes.FilterBlock}>
-                <div className={classes.FilterProcurar}>{pesquisa}</div>
-                <div className={classes.FilterProcurar}>{ordenar}</div>
-                <div className={classes.FilterProcurar}>{ordering}</div>
+                <div className={classes.FilterProcurar}>
+                    <Input value={form.pesquisa.value} elementType={form.pesquisa.elementType} elementConfig={form.pesquisa.elementConfig} changed={(event) => formHandler(event, "pesquisa")} />
+                    <div className={classes.Search}>
+                        <img src={search} alt="Sem Foto" />
+                    </div></div>
+                <div className={classes.FilterProcurar}>
+                    <Input value={form.ordem.value} elementType={form.ordem.elementType} elementConfig={form.ordem.elementConfig} changed={(event) => formHandler(event, "ordem")} />
+                </div>
+                <div className={classes.FilterProcurar}>
+                    <div className={classes.Sort}>
+                        <Button btnType="Success" clicked={() => formHandler(null, "sort")}><img className={classes.Sort} alt="Sem Foto" src={form.ascending ? asc : desc} /></Button>
+                    </div>
+                </div>
                 <p className={classes.Counter}>{movieList.filter(x => x != null).length} of {catalog.length} Results</p>
             </div>
             {movieList}
@@ -171,13 +152,7 @@ const Home = (props) => {
                             style={divStyle}
                             config={{
                                 file: {
-                                    tracks: [
-                                        { kind: 'subtitles', src: movieService.getSubtitleURL(movie,"pt"), srcLang: 'pt-br', default: true },
-                                        { kind: 'subtitles', src: movieService.getSubtitleURL(movie,"en"), srcLang: 'en' },
-                                        { kind: 'subtitles', src: movieService.getSubtitleURL(movie,"es"), srcLang: 'es' },
-                                        { kind: 'subtitles', src: movieService.getSubtitleURL(movie,"fr"), srcLang: 'fr' },
-                                        { kind: 'subtitles', src: movieService.getSubtitleURL(movie,"fp"), srcLang: 'fp' }
-                                    ],
+                                    tracks: movie.tracks,
                                     attributes: {
                                         controlsList: 'nodownload'
                                     }

@@ -1,4 +1,4 @@
-export const convertFile = async (fileObject, lang) => {
+export const convertFile = async (fileObject) => {
     let list = [];
     list.push("WEBVTT");
     list.push("");
@@ -7,29 +7,28 @@ export const convertFile = async (fileObject, lang) => {
     list.push("Hermano Flix orgulhosamente apresenta...");
     list.push("");
 
-    await fetch(fileObject)
+    list = await fetch(fileObject)
         .then((r) => r.text())
         .then(text => {
+            console.log();
             let regex = /([0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9])+/g;
-
-            //WORKAROUND
-            text = text.replace('à','a').replace('á','a').replace('ã','a').replace('â','a').replace('ä','a');
-            text = text.replace('è','a').replace('é','a').replace('ê','a').replace('ë','a');
-            text = text.replace('ì','a').replace('í','a').replace('î','a').replace('ï','a');
-            text = text.replace('ò','a').replace('ó','a').replace('õ','a').replace('ô','a').replace('ö','a');
-            text = text.replace('ù','a').replace('ú','a').replace('û','a').replace('ü','a');
 
             if (regex.test(text)) {
                 text = text.replace(regex, function (x) {
                     return x.replace(',', '.');
-                })
+                });
+            } else {
+                return null;
             }
 
-
-
             list.push(text);
+            return list;
+        })
+        .catch(err => {
+            return null;
         });
-    
+
+
     return list;
 }
 
