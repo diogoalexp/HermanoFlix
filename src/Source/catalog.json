@@ -1,5 +1,18 @@
 ﻿{
     "catalog": [
+        { "folder": "(2021) Palmer", "tmdb": "458220" } ,
+        { "folder": "(2021) Cruella", "tmdb": "337404" } ,
+        { "folder": "(2020) The Father", "tmdb": "600354" } ,
+        { "folder": "(2018) BlacKkKlansman", "tmdb": "487558" } ,
+        { "folder": "(2017) Get Out", "tmdb": "419430" } ,
+        { "folder": "(2016) Silence", "tmdb": "68730" } ,
+        { "folder": "(2016) Arrival", "tmdb": "329865" } ,
+        { "folder": "(2012) The Master", "tmdb": "68722" } ,
+        { "folder": "(2011) Hugo", "tmdb": "44826" } ,
+        { "folder": "(2010) The Social Network", "tmdb": "37799" } ,
+        { "folder": "(2004) The Aviator", "tmdb": "2567" } ,
+        { "folder": "(2002) Gangs of New York", "tmdb": "3131" } ,
+        { "folder": "(1990) Goodfellas", "tmdb": "769" } ,
         { "folder": "(2020) 2067", "tmdb": "528085" } ,
         { "folder": "(2020) Deep Blue Sea 3", "tmdb": "703745" } ,
         { "folder": "(2018) Deep Blue Sea 2", "tmdb": "492336" } ,
